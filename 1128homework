@@ -1,0 +1,24 @@
+cos = []
+
+while True:
+    co = input('請輸入公司代碼：（按Enter結束）')
+    if co == '':
+        break
+    else:
+        cos.append(co)
+stk = '2330'
+
+api_url ='https://mops.twse.com.tw/mops/web/t146sb05'
+
+form_data = {'step': '1',
+            
+             'firstin': '1',
+             'co_id': '2330'}
+from hello import get_soup
+soup = get_soup(api_url, form_data)
+import requests
+
+resp=requests.post(api_url, form_data)
+from bs4 import BeautifulSoup
+soup=BeautifulSoup(resp.text, 'lxml')
+company_div = soup.find('div', {'id': 'company'})
