@@ -8,17 +8,61 @@ while True:
         cos.append(co)
 stk = '2330'
 
-api_url ='https://mops.twse.com.tw/mops/web/t146sb05'
-
-form_data = {'step': '1',
-            
+api_url = 'https://mops.twse.com.tw/mops/web/ajax_t05st10_ifrs'
+form_data = {'encodeURIComponent': '1',
+             'step': '1',
              'firstin': '1',
-             'co_id': '2330'}
+             'off': '1',
+             'keyword4': '',
+             'code1': '',
+             'TYPEK2': '',
+             'checkbtn': '' ,
+             'queryName': 'co_id',
+             'inpuType': 'co_id',
+             'TYPEK': 'all',
+             'isnew': 'true',
+             'co_id': stk,
+             'year': '',
+             'month': ''}
 from hello import get_soup
 soup = get_soup(api_url, form_data)
-import requests
-
-resp=requests.post(api_url, form_data)
-from bs4 import BeautifulSoup
-soup=BeautifulSoup(resp.text, 'lxml')
-company_div = soup.find('div', {'id': 'company'})
+name = soup.find_all('table')[1].find('td').text.strip()
+name[13:-5]
+money = soup.find_all('table')[3].find_all('tr')[1].find('td').text.strip()
+growth_per= soup.find_all('table')[3].find_all('tr')[4].find('td').text.strip()
+gr_de= soup.find_all('table')[3].find_all('tr')[8].find('td').text.strip()
+datas = []
+def r(stk):
+    api_url = 'https://mops.twse.com.tw/mops/web/ajax_t05st10_ifrs'
+    form_data = {'encodeURIComponent': '1',
+             'step': '1',
+             'firstin': '1',
+             'off': '1',
+             'keyword4': '',
+             'code1': '',
+             'TYPEK2': '',
+             'checkbtn': '' ,
+             'queryName': 'co_id',
+             'inpuType': 'co_id',
+             'TYPEK': 'all',
+             'isnew': 'true',
+             'co_id': stk,
+             'year': '',
+             'month': ''}
+    soup = get_soup(api_url, form_data)
+    data=[]
+    data.append(stk)
+    data.append(soup.find_all('table')[1].find('td').text.strip()[13:-5])
+    data.append(soup.find_all('table')[3].find_all('tr')[1].find('td').text.strip())
+    data.append(soup.find_all('table')[3].find_all('tr')[4].find('td').text.strip())
+    data.append(soup.find_all('table')[3].find_all('tr')[8].find('td').text.strip())
+    datas.append(data)
+    return datas
+for co in cos:
+    print(f'正爬取{co}的營收資料...')
+    r(co)
+import pandas as pd
+pf = pd.DataFrame(datas, columns = ['公司代號','公司名稱','本月營收','逐月成長率(%)','同期成長率(%)'])
+import os
+path='Users/user/Desktop/'
+pf.to_csv('{path}rev.csv')
